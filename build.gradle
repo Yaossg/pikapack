@@ -1,4 +1,5 @@
 plugins {
+    id 'com.gradleup.shadow' version '8.3.2'
     id 'org.jetbrains.kotlin.jvm' version '2.0.20'
 }
 
@@ -18,4 +19,10 @@ test {
 }
 kotlin {
     jvmToolchain(17)
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'pikapack.MainKt'
+    }
 }
