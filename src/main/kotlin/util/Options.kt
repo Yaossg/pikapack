@@ -5,15 +5,11 @@ import kotlin.io.path.Path
 
 data class Options(val src: Path, val dst: Path,
                    val operation: Operation = Operation.REFRESH,
-                   val behavior: Behavior = Behavior.DEFAULT,
+                   val pack: Boolean = false, val compress: Boolean = false, val encrypt: Boolean = false,
                    val watch: Boolean = false, val schedule: Int = -1,
-                   val exclusion: String = "",
-                   val inclusion: String = "**") {
+                   val exclusion: String = "", val inclusion: String = "**") {
     enum class Operation {
         REFRESH, RESTORE
-    }
-    enum class Behavior {
-        DEFAULT, COMPRESS, ENCRYPT
     }
 
     companion object {
@@ -22,7 +18,9 @@ data class Options(val src: Path, val dst: Path,
             var src: Path? = null
             var dst: Path? = null
             var operation: Operation = Operation.REFRESH
-            var behavior: Behavior = Behavior.DEFAULT
+            var pack: Boolean = false
+            var compress: Boolean = false
+            var encrypt: Boolean = false
             var watch: Boolean = false
             var schedule: Int = -1
             var exclusion: String = ""
@@ -35,8 +33,10 @@ data class Options(val src: Path, val dst: Path,
                     "-dst" -> dst = Path(args[++i])
                     "--refresh" -> operation = Operation.REFRESH
                     "--restore" -> operation = Operation.RESTORE
-                    "--compress" -> behavior = Behavior.COMPRESS
-                    "--encrypt" -> behavior = Behavior.ENCRYPT
+                    "--copy" -> pack = false
+                    "--pack" -> pack = true
+                    "--compress" -> compress = true
+                    "--encrypt" -> encrypt = true
                     "--watch" -> watch = true
                     "-sched" -> schedule = args[++i].toInt()
                     "-excl" -> exclusion = args[++i]
@@ -45,7 +45,10 @@ data class Options(val src: Path, val dst: Path,
                 }
                 ++i
             }
-            return Options(src!!, dst!!, operation, behavior, watch, schedule, exclusion, inclusion)
+            if (!pack && (compress || encrypt)) {
+                return null
+            }
+            return Options(src!!, dst!!, operation, pack, compress, encrypt, watch, schedule, exclusion, inclusion)
         }.getOrNull()
     }
 }

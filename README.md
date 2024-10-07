@@ -19,12 +19,13 @@ java -jar pikapack.jar <options...>
 - `-src <path>` specify source folder
 - `-dst <path>` specify destination folder
 - Operation
-  - `--refresh` copy files from src to dst, default operation
-  - `--restore` copy files from dst to src
-- Behavior
-  - default behavior: no compression or encryption
-  - `--compress` compress during refresh and decompress during restore
-  - `--encrypt` encrypt during compress and decrypt during decompress
+  - `--refresh` sync files from src to dst, default operation
+  - `--restore` sync files from dst to src
+- Sync Behavior
+  - `--copy` copy all files and folders unchanged, default behavior
+  - `--pack` pack all files and folders into one file
+  - `--compress` compress/decompress packed file
+  - `--encrypt` encrypt/decrypt packed file
 - Service
   - `--watch` watch changes from filesystem
   - `-sched <interval>` scheduled synchronization 
