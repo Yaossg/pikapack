@@ -11,11 +11,11 @@ class SyncPlan(val options: Options) {
     fun files() = Files.walk(options.src).use {
         val root = options.src
         val fs = FileSystems.getDefault()
-        val excludes = fs.getPathMatcher(options.exclusion)
-        val includes = fs.getPathMatcher(options.inclusion)
+        val excludes = fs.getPathMatcher("glob:${options.exclusion}")
+        val includes = fs.getPathMatcher("glob:${options.inclusion}")
         it.filter(Files::isRegularFile).map(root::relativize).filter {
             !excludes.matches(it) && includes.matches(it)
-        }
+        }.toList()
     }
 
     fun behavior(): SyncBehavior = if (options.pack) PackSyncBehavior else CopySyncBehavior
