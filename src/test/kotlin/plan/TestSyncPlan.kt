@@ -11,11 +11,12 @@ class TestSyncPlan {
         val resources = Path(".").toAbsolutePath().resolve("src/test/resources")
         fun tempDir() = Files.createTempDirectory("pikapack")
     }
+
     @Test
     fun testFiles() {
         val options = Options(src=resources.resolve("foo"), dst=tempDir())
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("a.txt"), Path("b.md"), Path("bar/c.c")), plan.files())
+        assertEquals(listOf(Path("a.txt"), Path("b.md"), Path("bar/c.c")), plan.srcFiles())
     }
 
     @Test
@@ -23,7 +24,7 @@ class TestSyncPlan {
         val options = Options(src=resources.resolve("foo"), dst=tempDir(),
             exclusion = "**/*.c")
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("a.txt"), Path("b.md")), plan.files())
+        assertEquals(listOf(Path("a.txt"), Path("b.md")), plan.srcFiles())
     }
 
     @Test
@@ -31,6 +32,6 @@ class TestSyncPlan {
         val options = Options(src=resources.resolve("foo"), dst=tempDir(),
             inclusion = "**/*.c")
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("bar/c.c")), plan.files())
+        assertEquals(listOf(Path("bar/c.c")), plan.srcFiles())
     }
 }
