@@ -37,7 +37,7 @@ class TestFileEncryptor {
 
     @Test
     fun testEncrypt() {
-        FileEncryptor().encryptFile(baseFile.toString(), encryptedFile.toString())
+        FileEncryptor.encryptFile(baseFile, encryptedFile)
 
         val inputContent = baseFile.readBytes()
         val outputContent = encryptedFile.readBytes()
@@ -50,10 +50,10 @@ class TestFileEncryptor {
     fun testDecrypt() {
         // Ensure the encrypted file exists before decrypting
         if (!encryptedFile.exists()) {
-            FileEncryptor().encryptFile(baseFile.toString(), encryptedFile.toString())
+            FileEncryptor.encryptFile(baseFile, encryptedFile)
         }
 
-        FileEncryptor().decryptFile(encryptedFile.toString(), decryptedFile.toString())
+        FileEncryptor.decryptFile(encryptedFile, decryptedFile)
 
         val outputContent = decryptedFile.readBytes()
         val baseContent = baseFile.readBytes()

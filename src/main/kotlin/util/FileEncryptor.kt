@@ -1,19 +1,17 @@
 package pikapack.util
 
 import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.Path
 import java.security.SecureRandom
 import javax.crypto.*
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-class FileEncryptor {
-    companion object {
-        private const val ALGORITHM = "AES"
-        private const val TRANSFORMATION = "AES/CBC/PKCS5Padding"
-        private const val KEY_SIZE = 256
-        private const val IV_SIZE = 16
-    }
+object FileEncryptor {
+    private const val ALGORITHM = "AES"
+    private const val TRANSFORMATION = "AES/CBC/PKCS5Padding"
+    private const val KEY_SIZE = 256
+    private const val IV_SIZE = 16
 
 
     private fun generateKey(): SecretKey {
@@ -29,17 +27,14 @@ class FileEncryptor {
     }
 
     fun encryptFile(
-        inputFile: String,
-        outputFile: String,
+        inputPath: Path,
+        outputPath: Path,
     ) {
         val key = generateKey()
         val iv = generateIv()
 
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, key, iv)
-
-        val inputPath = Paths.get(inputFile)
-        val outputPath = Paths.get(outputFile)
 
         Files.newOutputStream(outputPath).use { outputStream ->
             outputStream.write(key.encoded)
@@ -54,12 +49,9 @@ class FileEncryptor {
     }
 
     fun decryptFile(
-        inputFile: String,
-        outputFile: String
+        inputPath: Path,
+        outputPath: Path,
     ) {
-        val inputPath = Paths.get(inputFile)
-        val outputPath = Paths.get(outputFile)
-
         Files.newInputStream(inputPath).use { inputStream ->
             val keyBytes = ByteArray(KEY_SIZE / 8)
             inputStream.read(keyBytes)
