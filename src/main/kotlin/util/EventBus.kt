@@ -15,6 +15,6 @@ class EventBus {
     }
 
     fun poll() = lock.withLock {
-        queue.poll()?.execute()
-    }
+        queue.poll()
+    }?.execute()
 }
