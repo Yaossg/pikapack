@@ -1,10 +1,11 @@
 package pikapack.gui
 
+import pikapack.util.Options
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.GridLayout
 import javax.swing.*
-import kotlin.concurrent.thread
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 class FolderSelector(label: String): JPanel() {
@@ -12,6 +13,9 @@ class FolderSelector(label: String): JPanel() {
         preferredSize = Dimension(320, 18)
     }
     val button = JButton("Open...")
+
+    val path get() = Path(field.text)
+
     init {
         layout = BorderLayout()
         add(JLabel(label), BorderLayout.WEST)
@@ -33,6 +37,9 @@ class FileSelector(label: String): JPanel() {
     val field = JTextField().apply {
         preferredSize = Dimension(320, 18)
     }
+
+    val text get() = field.text
+
     init {
         layout = BorderLayout()
         add(JLabel(label), BorderLayout.WEST)
@@ -43,6 +50,10 @@ class FileSelector(label: String): JPanel() {
 class OperationSelector: JPanel() {
     val refresh = JRadioButton("Refresh (src -> dst)")
     val restore = JRadioButton("Restore (src <- dst)")
+
+    val operation get() =
+        if (refresh.isSelected) Options.Operation.REFRESH else Options.Operation.RESTORE
+
     init {
         val group = ButtonGroup()
         group.add(refresh)
@@ -58,10 +69,14 @@ class BehaviorSelector: JPanel() {
     val pack = JRadioButton("Pack")
     val compress = JCheckBox("Compress")
     val encrypt = JCheckBox("Encrypt")
+
     fun updateEnable() {
         compress.isEnabled = pack.isSelected
         encrypt.isEnabled = pack.isSelected
+        if (!compress.isEnabled) compress.isSelected = false
+        if (!encrypt.isEnabled) encrypt.isSelected = false
     }
+
     init {
         val group = ButtonGroup()
         group.add(copy)
@@ -77,6 +92,28 @@ class BehaviorSelector: JPanel() {
     }
 }
 
+class Watchers: JPanel() {
+    val watch = JCheckBox("Watch")
+    val scheduled = JCheckBox("Schedule")
+    val schedule = JTextField()
+
+    val scheduling get() = if (scheduled.isSelected) scheduled.text.toIntOrNull() ?: -1 else -1
+
+    fun updateEnable() {
+        schedule.isEnabled = scheduled.isSelected
+    }
+
+    init {
+        add(watch)
+        add(scheduled)
+        add(schedule)
+        add(JLabel("seconds per sync"))
+        schedule.preferredSize = Dimension(320, 24)
+        scheduled.addActionListener { updateEnable() }
+        updateEnable()
+    }
+}
+
 class ContentPanel : JPanel() {
     val src = FolderSelector("src: ")
     val dst = FolderSelector("dst: ")
@@ -84,26 +121,36 @@ class ContentPanel : JPanel() {
     val behavior = BehaviorSelector()
     val excludes = FileSelector("excludes: ")
     val includes = FileSelector("includes: ")
-    val progress = JProgressBar()
+    val watchers = Watchers()
     val button = JButton("pikapack!").apply {
-        font = font.deriveFont(18.0F)
+        font = font.deriveFont(16.0F)
         addActionListener {
-            progress.value = 0
-            thread {
-                while (++progress.value < progress.maximum) Thread.sleep(10)
-                JOptionPane.showMessageDialog(parent, "backup complete")
-            }
+            val options = Options(
+                src = src.path,
+                dst = dst.path,
+                operation = operation.operation,
+                pack = behavior.pack.isSelected,
+                compress = behavior.compress.isSelected,
+                encrypt = behavior.encrypt.isSelected,
+                watch = watchers.watch.isSelected,
+                schedule = watchers.scheduling,
+                inclusion = includes.text,
+                exclusion = excludes.text,
+            )
+            JOptionPane.showMessageDialog(parent, options.toString())
         }
     }
     init {
-        layout = GridLayout(8, 1)
+        layout = GridLayout(8, 1).apply {
+            vgap = 1
+        }
         add(src)
         add(dst)
         add(operation)
         add(behavior)
         add(excludes)
         add(includes)
-        add(progress)
+        add(watchers)
         add(button)
     }
 }
@@ -116,15 +163,6 @@ class MenuBar: JMenuBar() {
                     exitProcess(0)
                 }
             })
-        })
-        add(JMenu("Sync").apply {
-            add(JMenuItem("Watch").apply {
-            })
-            add(JMenuItem("Schedule")).apply {
-                addActionListener {
-                    val input = JOptionPane.showInputDialog(parent, "schedule period")
-                }
-            }
         })
         add(JMenu("Help").apply {
             add(JMenuItem("About").apply {
