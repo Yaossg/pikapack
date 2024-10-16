@@ -19,12 +19,12 @@ class TestPackSyncBehavior {
 
     @Test
     fun testPackRefreshAndRestore() {
-        val tempDir = TestPackSyncBehavior.Companion.tempDir()
-        val tempZip = TestPackSyncBehavior.Companion.tempZip()
-        val originSrc = TestPackSyncBehavior.Companion.resources.resolve("foo")
+        val tempDir = tempDir()
+        val tempZip = tempZip()
+        val originSrc = resources.resolve("foo")
 
         val options1 = Options(src= originSrc, dst= tempZip, pack=true)
-        val options2 = Options(src= tempZip, dst= tempDir, pack=true)
+        val options2 = Options(src= tempDir, dst= tempZip, pack=true)
         val plan1 = SyncPlan(options1)
         val plan2 = SyncPlan(options2)
 
