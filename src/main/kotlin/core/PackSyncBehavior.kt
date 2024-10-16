@@ -7,7 +7,7 @@ import java.nio.file.Files
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipInputStream
-import kotlin.io.path.createDirectory
+import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.outputStream
@@ -35,12 +35,11 @@ object PackSyncBehavior: SyncBehavior {
             var entry : ZipEntry? = zipIn.nextEntry
             while (entry != null) {
                 var filePath = srcDir.resolve(entry.name)
-                println(filePath)
                 if (!entry.isDirectory) {
                     extractFile(zipIn, filePath)
                 } else {
                     if (!filePath.exists()) {
-                        filePath.createDirectory()
+                        filePath.createDirectories()
                     }
                 }
                 zipIn.closeEntry()
