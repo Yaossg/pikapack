@@ -7,7 +7,8 @@ import java.nio.file.StandardWatchEventKinds
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class AsyncPlan(val options: Options, val syncPlan: SyncPlan) {
+class AsyncPlan(val options: Options) {
+    private val syncPlan: SyncPlan = SyncPlan(options)
     private val eventBus: EventBus = EventBus()
     private val scheduler = Executors.newScheduledThreadPool(1)
     private val watchService = FileSystems.getDefault().newWatchService()
