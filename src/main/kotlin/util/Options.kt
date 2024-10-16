@@ -7,7 +7,8 @@ data class Options(val src: Path, val dst: Path,
                    val operation: Operation = Operation.REFRESH,
                    val pack: Boolean = false, val compress: Boolean = false, val encrypt: Boolean = false,
                    val watch: Boolean = false, val schedule: Int = -1,
-                   val exclusion: String = "", val inclusion: String = "**") {
+                   val exclusion: String = "", val inclusion: String = "**",
+                   val encryptionKey: String = "key") {
     enum class Operation {
         REFRESH, RESTORE
     }
