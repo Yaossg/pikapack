@@ -107,7 +107,7 @@ class Watchers: JPanel() {
         add(watch)
         add(scheduled)
         add(schedule)
-        add(JLabel("seconds per sync"))
+        add(JLabel("minutes per sync"))
         schedule.preferredSize = Dimension(320, 24)
         scheduled.addActionListener { updateEnable() }
         updateEnable()

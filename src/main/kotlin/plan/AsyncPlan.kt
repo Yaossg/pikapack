@@ -6,6 +6,7 @@ import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 class AsyncPlan(val options: Options) {
     private val syncPlan: SyncPlan = SyncPlan(options)
@@ -31,7 +32,7 @@ class AsyncPlan(val options: Options) {
                 StandardWatchEventKinds.ENTRY_DELETE
             )
 
-            Thread {
+            thread {
                 try {
                     while (!Thread.currentThread().isInterrupted) {
                         val key = watchService.take()
@@ -44,12 +45,12 @@ class AsyncPlan(val options: Options) {
                         }
                         key.reset()
                     }
-                } catch (e: InterruptedException) {
+                } catch (_: InterruptedException) {
                     Thread.currentThread().interrupt()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-            }.start()
+            }
         }
 
 
@@ -60,7 +61,7 @@ class AsyncPlan(val options: Options) {
                     eventBus.poll()
                     Thread.sleep(1000)
                 }
-            } catch (e: InterruptedException) {
+            } catch (_: InterruptedException) {
                 Thread.currentThread().interrupt()
             }
         }

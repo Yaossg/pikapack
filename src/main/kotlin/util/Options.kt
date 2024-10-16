@@ -12,6 +12,8 @@ data class Options(val src: Path, val dst: Path,
         REFRESH, RESTORE
     }
 
+    val isAsync get() = watch || schedule > 0
+
     companion object {
         fun parse(args: Array<String>): Options? = runCatching {
             if (args.isEmpty()) return null
