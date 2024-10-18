@@ -47,8 +47,7 @@ class AsyncPlan(val options: Options) {
                     }
                 } catch (_: InterruptedException) {
                     Thread.currentThread().interrupt()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (_: Exception) {
                 }
             }
         }

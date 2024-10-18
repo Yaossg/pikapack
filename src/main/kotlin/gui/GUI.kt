@@ -1,5 +1,7 @@
 package pikapack.gui
 
+import pikapack.plan.AsyncPlan
+import pikapack.plan.SyncPlan
 import pikapack.util.Options
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -38,7 +40,10 @@ class FileSelector(label: String): JPanel() {
         preferredSize = Dimension(320, 18)
     }
 
-    val text get() = field.text
+    var text get() = field.text
+        set(value) {
+            this.field.text = value
+        }
 
     init {
         layout = BorderLayout()
@@ -117,13 +122,13 @@ class Watchers: JPanel() {
         add(scheduled)
         add(schedule)
         add(JLabel("minutes per sync"))
-        schedule.preferredSize = Dimension(320, 24)
+        schedule.preferredSize = Dimension(240, 24)
         scheduled.addActionListener { updateEnable() }
         updateEnable()
     }
 }
 
-class ContentPanel : JPanel() {
+class ContentPanel(frame: JFrame) : JPanel() {
     val src = FolderSelector("src: ")
     val dst = FolderSelector("dst: ")
     val operation = OperationSelector()
@@ -147,7 +152,22 @@ class ContentPanel : JPanel() {
                 exclusion = excludes.text,
                 encryptionKey = behavior.encryptionKey
             )
-            JOptionPane.showMessageDialog(parent, options.toString())
+            fun showDialog(OK: String, message: String) {
+                val selections = arrayOf(OK)
+                JOptionPane.showOptionDialog(frame, message, "Pikapack",
+                    JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE,
+                    null, selections, selections[0])
+            }
+            if (options.isAsync) {
+                val plan = AsyncPlan(options)
+                showDialog("Stop", "Watching or/and Scheduling...")
+                plan.shutdown()
+            } else {
+                val plan = SyncPlan(options)
+                plan.execute()
+                showDialog("OK", "Sync is done")
+            }
+
         }
     }
     init {
@@ -159,6 +179,7 @@ class ContentPanel : JPanel() {
         add(operation)
         add(behavior)
         add(excludes)
+        excludes.text = "**"
         add(includes)
         add(watchers)
         add(button)
@@ -187,7 +208,7 @@ class MenuBar: JMenuBar() {
 class GUI: JFrame("pikapack") {
     init {
         jMenuBar = MenuBar()
-        contentPane = ContentPanel()
+        contentPane = ContentPanel(this)
         defaultCloseOperation = EXIT_ON_CLOSE
 
         val url = GUI::class.java.getResource("/icon.png")
