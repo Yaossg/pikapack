@@ -69,12 +69,17 @@ class BehaviorSelector: JPanel() {
     val pack = JRadioButton("Pack")
     val compress = JCheckBox("Compress")
     val encrypt = JCheckBox("Encrypt")
+    val key = JPasswordField()
+
+    @Suppress("DEPRECATION")
+    val encryptionKey get() = key.text
 
     fun updateEnable() {
         compress.isEnabled = pack.isSelected
         encrypt.isEnabled = pack.isSelected
         if (!compress.isEnabled) compress.isSelected = false
         if (!encrypt.isEnabled) encrypt.isSelected = false
+        key.isEnabled = encrypt.isSelected
     }
 
     init {
@@ -83,10 +88,14 @@ class BehaviorSelector: JPanel() {
         group.add(pack)
         copy.addActionListener { updateEnable() }
         pack.addActionListener { updateEnable() }
+        encrypt.addActionListener { updateEnable() }
         add(copy)
         add(pack)
         add(compress)
         add(encrypt)
+        add(JLabel("Encryption Key: "))
+        add(key)
+        key.preferredSize = Dimension(240, 24)
         copy.isSelected = true
         updateEnable()
     }
@@ -136,6 +145,7 @@ class ContentPanel : JPanel() {
                 schedule = watchers.scheduling,
                 inclusion = includes.text,
                 exclusion = excludes.text,
+                encryptionKey = behavior.encryptionKey
             )
             JOptionPane.showMessageDialog(parent, options.toString())
         }

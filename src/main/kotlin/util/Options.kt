@@ -8,7 +8,7 @@ data class Options(val src: Path, val dst: Path,
                    val pack: Boolean = false, val compress: Boolean = false, val encrypt: Boolean = false,
                    val watch: Boolean = false, val schedule: Int = -1,
                    val exclusion: String = "", val inclusion: String = "**",
-                   val encryptionKey: String = "key") {
+                   val encryptionKey: String = "") {
     enum class Operation {
         REFRESH, RESTORE
     }
@@ -28,7 +28,7 @@ data class Options(val src: Path, val dst: Path,
             var schedule: Int = -1
             var exclusion: String = ""
             var inclusion: String = "**"
-            var encryptionKey: String = "key"
+            var encryptionKey: String = ""
             var i = 0
             while (i < args.size) {
                 val option = args[i]
@@ -51,6 +51,9 @@ data class Options(val src: Path, val dst: Path,
                 ++i
             }
             if (!pack && (compress || encrypt)) {
+                return null
+            }
+            if (encrypt && encryptionKey.isEmpty()) {
                 return null
             }
             return Options(src!!, dst!!, operation, pack, compress, encrypt, watch, schedule, exclusion, inclusion, encryptionKey)
