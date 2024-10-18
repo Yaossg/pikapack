@@ -28,6 +28,7 @@ data class Options(val src: Path, val dst: Path,
             var schedule: Int = -1
             var exclusion: String = ""
             var inclusion: String = "**"
+            var encryptionKey: String = "key"
             var i = 0
             while (i < args.size) {
                 val option = args[i]
@@ -44,6 +45,7 @@ data class Options(val src: Path, val dst: Path,
                     "-sched" -> schedule = args[++i].toInt()
                     "-excl" -> exclusion = args[++i]
                     "-incl" -> inclusion = args[++i]
+                    "-key" -> encryptionKey = args[++i]
                     else -> return null
                 }
                 ++i
@@ -51,7 +53,7 @@ data class Options(val src: Path, val dst: Path,
             if (!pack && (compress || encrypt)) {
                 return null
             }
-            return Options(src!!, dst!!, operation, pack, compress, encrypt, watch, schedule, exclusion, inclusion)
+            return Options(src!!, dst!!, operation, pack, compress, encrypt, watch, schedule, exclusion, inclusion, encryptionKey)
         }.getOrNull()
     }
 }

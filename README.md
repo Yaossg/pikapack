@@ -26,6 +26,7 @@ java -jar pikapack.jar <options...>
   - `--pack` pack all files and folders into one file
   - `--compress` compress/decompress packed file
   - `--encrypt` encrypt/decrypt packed file
+  - `-key <key>` specify encryption key
 - Service
   - `--watch` watch changes from filesystem
   - `-sched <interval>` scheduled synchronization 
