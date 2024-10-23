@@ -1,7 +1,7 @@
 package pikapack.core
 
 import pikapack.plan.SyncPlan
-import java.io.InputStream
+import transferAllBytes
 
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -31,14 +31,6 @@ object PackSyncBehavior: SyncBehavior {
     private const val TRANSFORMATION = "AES/CBC/PKCS5Padding"
     private const val IV_SIZE = 16
 
-    private fun readAllBytes(inputStream: InputStream, action: (buf: ByteArray, off: Int, len: Int) -> Unit) {
-        val buffer = ByteArray(4096)
-        var len: Int
-        while (inputStream.read(buffer).also { len = it } > 0) {
-            action(buffer, 0, len)
-        }
-    }
-
     private fun inZipInput(plan: SyncPlan, zipIn : ZipInputStream) {
         val srcDir = plan.options.src
         var entry : ZipEntry? = zipIn.nextEntry
@@ -47,7 +39,7 @@ object PackSyncBehavior: SyncBehavior {
             if (!entry.isDirectory) {
                 filePath.createParentDirectories()
                 Files.newOutputStream(filePath).use { fos ->
-                    readAllBytes(zipIn, fos::write)
+                    zipIn.transferAllBytes(fos::write)
                 }
                 filePath.setLastModifiedTime(entry.lastModifiedTime)
             } else {
@@ -72,7 +64,7 @@ object PackSyncBehavior: SyncBehavior {
                     zipEntry.size = src.fileSize()
                     val crc32 = CRC32()
                     src.inputStream().use {
-                        readAllBytes(it, crc32::update)
+                        it.transferAllBytes(crc32::update)
                     }
                     zipEntry.crc = crc32.value
                 }
