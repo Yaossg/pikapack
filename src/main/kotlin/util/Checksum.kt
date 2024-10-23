@@ -1,3 +1,5 @@
+package pikapack.util
+
 import java.io.InputStream
 import java.util.zip.CRC32
 

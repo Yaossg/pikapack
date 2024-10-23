@@ -5,9 +5,11 @@ import pikapack.plan.SyncPlan
 import pikapack.util.Options
 import java.nio.file.Files
 import kotlin.io.path.Path
+import kotlin.io.path.appendText
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class TestPackSyncBehavior {
@@ -44,6 +46,10 @@ class TestPackSyncBehavior {
         assertEquals(originSrc.resolve("a.txt").readBytes().toList(), tempDir.resolve("a.txt").readBytes().toList())
         assertEquals(originSrc.resolve("b.md").readBytes().toList(), tempDir.resolve("b.md").readBytes().toList())
         assertEquals(originSrc.resolve("bar/c.c").readBytes().toList(), tempDir.resolve("bar/c.c").readBytes().toList())
+
+        assertTrue(plan2.check())
+        tempDir.resolve("a.txt").appendText("hi")
+        assertFalse(plan2.check())
     }
 
     @Test
@@ -72,6 +78,10 @@ class TestPackSyncBehavior {
         assertEquals(originSrc.resolve("a.txt").readBytes().toList(), tempDir.resolve("a.txt").readBytes().toList())
         assertEquals(originSrc.resolve("b.md").readBytes().toList(), tempDir.resolve("b.md").readBytes().toList())
         assertEquals(originSrc.resolve("bar/c.c").readBytes().toList(), tempDir.resolve("bar/c.c").readBytes().toList())
+
+        assertTrue(plan2.check())
+        tempDir.resolve("a.txt").appendText("hi")
+        assertFalse(plan2.check())
     }
 
     @Test
@@ -100,6 +110,10 @@ class TestPackSyncBehavior {
         assertEquals(originSrc.resolve("a.txt").readBytes().toList(), tempDir.resolve("a.txt").readBytes().toList())
         assertEquals(originSrc.resolve("b.md").readBytes().toList(), tempDir.resolve("b.md").readBytes().toList())
         assertEquals(originSrc.resolve("bar/c.c").readBytes().toList(), tempDir.resolve("bar/c.c").readBytes().toList())
+
+        assertTrue(plan2.check())
+        tempDir.resolve("b.md").appendText("hi")
+        assertFalse(plan2.check())
     }
 
 
@@ -129,5 +143,9 @@ class TestPackSyncBehavior {
         assertEquals(originSrc.resolve("a.txt").readBytes().toList(), tempDir.resolve("a.txt").readBytes().toList())
         assertEquals(originSrc.resolve("b.md").readBytes().toList(), tempDir.resolve("b.md").readBytes().toList())
         assertEquals(originSrc.resolve("bar/c.c").readBytes().toList(), tempDir.resolve("bar/c.c").readBytes().toList())
+
+        assertTrue(plan2.check())
+        tempDir.resolve("bar/c.c").appendText("hi")
+        assertFalse(plan2.check())
     }
 }

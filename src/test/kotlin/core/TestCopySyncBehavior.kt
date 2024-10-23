@@ -4,11 +4,13 @@ import pikapack.plan.SyncPlan
 import pikapack.util.Options
 import java.nio.file.Files
 import kotlin.io.path.Path
+import kotlin.io.path.appendText
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class TestCopySyncBehavior {
     companion object {
@@ -18,7 +20,8 @@ class TestCopySyncBehavior {
 
     @Test
     fun testCopyRefresh() {
-        val options = Options(src=resources.resolve("foo"), dst=tempDir())
+        val tempDir = tempDir()
+        val options = Options(src=resources.resolve("foo"), dst=tempDir)
         val plan = SyncPlan(options)
         plan.refresh()
         val src = options.src
@@ -31,11 +34,16 @@ class TestCopySyncBehavior {
         assertEquals(src.resolve("a.txt").readBytes().toList(), dst.resolve("a.txt").readBytes().toList())
         assertEquals(src.resolve("b.md").readBytes().toList(), dst.resolve("b.md").readBytes().toList())
         assertEquals(src.resolve("bar/c.c").readBytes().toList(), dst.resolve("bar/c.c").readBytes().toList())
+
+        assertTrue(plan.check())
+        tempDir.resolve("a.txt").appendText("hi")
+        assertFalse(plan.check())
     }
 
     @Test
     fun testCopyRestore() {
-        val options = Options(src=tempDir(), dst=resources.resolve("foo"))
+        val tempDir = tempDir()
+        val options = Options(src=tempDir, dst=resources.resolve("foo"))
         val plan = SyncPlan(options)
         plan.restore()
         val src = options.src
@@ -48,5 +56,9 @@ class TestCopySyncBehavior {
         assertEquals(src.resolve("a.txt").readBytes().toList(), dst.resolve("a.txt").readBytes().toList())
         assertEquals(src.resolve("b.md").readBytes().toList(), dst.resolve("b.md").readBytes().toList())
         assertEquals(src.resolve("bar/c.c").readBytes().toList(), dst.resolve("bar/c.c").readBytes().toList())
+
+        assertTrue(plan.check())
+        tempDir.resolve("bar/c.c").appendText("hi")
+        assertFalse(plan.check())
     }
 }

@@ -1,7 +1,6 @@
 package pikapack.core
 
 import pikapack.plan.SyncPlan
-import transferAllBytes
 
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -10,7 +9,6 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 import java.nio.file.Files
-import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipInputStream
@@ -24,6 +22,9 @@ import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.outputStream
 import kotlin.io.path.inputStream
 import kotlin.io.path.setLastModifiedTime
+
+import pikapack.util.transferAllBytes
+import java.util.zip.CRC32
 
 object PackSyncBehavior: SyncBehavior {
     private const val ALGORITHM = "AES"
@@ -137,6 +138,60 @@ object PackSyncBehavior: SyncBehavior {
             ZipInputStream(fileStream).use { zipIn ->
                 inZipInput(plan, zipIn)
             }
+        }
+    }
+
+    private fun checkZipInput(plan: SyncPlan, zipIn : ZipInputStream) : Boolean {
+        val srcDir = plan.options.src
+        var entry : ZipEntry? = zipIn.nextEntry
+        while (entry != null) {
+            var filePath = srcDir.resolve(entry.name)
+            val crcSrc = CRC32()
+            val crcDst = CRC32()
+
+            if (!entry.isDirectory) {
+                zipIn.transferAllBytes(crcDst::update)
+                Files.newInputStream(filePath).use {
+                    it.transferAllBytes(crcSrc::update)
+                }
+            }
+
+            // println("file: ${filePath}, src=${crcSrc.value} dst=${crcDst.value}")
+
+            if (crcSrc.value != crcDst.value)
+                return false
+
+            zipIn.closeEntry()
+            entry = zipIn.nextEntry
+        }
+
+        return true
+    }
+
+    override fun check(plan : SyncPlan) : Boolean {
+        val fileStream = plan.options.dst.inputStream()
+
+        if (plan.options.encrypt) {
+            val key = plan.options.encryptionKey
+
+            fileStream.use { fileStream ->
+                val ivBytes = ByteArray(IV_SIZE)
+                fileStream.read(ivBytes)
+                val iv = IvParameterSpec(ivBytes)
+
+                val cipher = Cipher.getInstance(TRANSFORMATION)
+                cipher.init(Cipher.DECRYPT_MODE, generateKey(key), iv)
+
+                CipherInputStream(fileStream, cipher).use { cipherStream ->
+                    ZipInputStream(cipherStream).use { zipIn ->
+                        return checkZipInput(plan, zipIn)
+                    }
+                }
+            }
+        }
+
+        ZipInputStream(fileStream).use { zipIn ->
+            return checkZipInput(plan, zipIn)
         }
     }
 }

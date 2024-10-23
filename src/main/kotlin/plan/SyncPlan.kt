@@ -24,6 +24,7 @@ class SyncPlan(val options: Options) {
     fun behavior(): SyncBehavior = if (options.pack) PackSyncBehavior else CopySyncBehavior
     fun refresh() = behavior().refresh(this)
     fun restore() = behavior().restore(this)
+    fun check() = behavior().check(this)
 
     fun execute() = when (options.operation) {
         Options.Operation.REFRESH -> refresh()
