@@ -179,7 +179,7 @@ class ContentPanel(frame: JFrame) : JPanel() {
         add(operation)
         add(behavior)
         add(excludes)
-        excludes.text = "**"
+        includes.text = "**"
         add(includes)
         add(watchers)
         add(button)
