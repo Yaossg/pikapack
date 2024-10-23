@@ -20,10 +20,18 @@ class TestOptions {
     }
 
     @Test
-    fun testParseFailure() {
+    fun testParseInvalid() {
         val src = "/home/folder1"
         val dst = "/home/folder2"
         assertEquals(null, Options.parse(arrayOf("-src", src)))
         assertEquals(null, Options.parse(arrayOf("-src", src, "-dst", dst, "--sausage")))
+    }
+
+    @Test
+    fun testParseConflict() {
+        val src = "/home/folder1"
+        val dst = "/home/folder2"
+        assertEquals(null, Options.parse(arrayOf("-src", src, "-dst", dst, "--copy", "--compress")))
+        assertEquals(null, Options.parse(arrayOf("-src", src, "-dst", dst, "--encrypt")))
     }
 }

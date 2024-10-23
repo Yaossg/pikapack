@@ -34,4 +34,12 @@ class TestSyncPlan {
         val plan = SyncPlan(options)
         assertEquals(listOf(Path("bar/c.c")), plan.srcFiles())
     }
+
+    @Test
+    fun testFilesExcludeInclude() {
+        val options = Options(src=resources.resolve("foo"), dst=tempDir(),
+            exclusion = "**/*.c", inclusion = "*.txt")
+        val plan = SyncPlan(options)
+        assertEquals(listOf(Path("a.txt")), plan.srcFiles())
+    }
 }
