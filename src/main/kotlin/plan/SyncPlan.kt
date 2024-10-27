@@ -22,8 +22,14 @@ class SyncPlan(val options: Options) {
     fun dstFiles() = files(options.dst)
 
     fun behavior(): SyncBehavior = if (options.pack) PackSyncBehavior else CopySyncBehavior
-    fun refresh() = behavior().refresh(this)
-    fun restore() = behavior().restore(this)
+    fun refresh() {
+        behavior().refresh(this)
+        assert(check()) { "Checksum failed" }
+    }
+    fun restore() {
+        behavior().restore(this)
+        assert(check()) { "Checksum failed" }
+    }
     fun check() = behavior().check(this)
 
     fun execute() = when (options.operation) {
