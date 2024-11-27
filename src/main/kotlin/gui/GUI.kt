@@ -164,8 +164,13 @@ class ContentPanel(frame: JFrame) : JPanel() {
                 plan.shutdown()
             } else {
                 val plan = SyncPlan(options)
-                plan.execute()
-                showDialog("OK", "Sync is done")
+                try {
+                    plan.execute()
+                    showDialog("OK", "Sync is done")
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    showDialog("OK", "Error: ${e.message}")
+                }
             }
 
         }
