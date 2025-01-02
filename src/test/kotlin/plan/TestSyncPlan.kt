@@ -16,7 +16,7 @@ class TestSyncPlan {
     fun testFiles() {
         val options = Options(src=resources.resolve("foo"), dst=tempDir())
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("a.txt"), Path("b.md"), Path("bar/c.c")), plan.srcFiles())
+        assertEquals(setOf(Path("a.txt"), Path("b.md"), Path("bar/c.c")), plan.srcFiles().toSet())
     }
 
     @Test
@@ -24,7 +24,7 @@ class TestSyncPlan {
         val options = Options(src=resources.resolve("foo"), dst=tempDir(),
             exclusion = "**/*.c")
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("a.txt"), Path("b.md")), plan.srcFiles())
+        assertEquals(setOf(Path("a.txt"), Path("b.md")), plan.srcFiles().toSet())
     }
 
     @Test
@@ -32,7 +32,7 @@ class TestSyncPlan {
         val options = Options(src=resources.resolve("foo"), dst=tempDir(),
             inclusion = "**/*.c")
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("bar/c.c")), plan.srcFiles())
+        assertEquals(setOf(Path("bar/c.c")), plan.srcFiles().toSet())
     }
 
     @Test
@@ -40,6 +40,6 @@ class TestSyncPlan {
         val options = Options(src=resources.resolve("foo"), dst=tempDir(),
             exclusion = "**/*.c", inclusion = "*.txt")
         val plan = SyncPlan(options)
-        assertEquals(listOf(Path("a.txt")), plan.srcFiles())
+        assertEquals(setOf(Path("a.txt")), plan.srcFiles().toSet())
     }
 }
